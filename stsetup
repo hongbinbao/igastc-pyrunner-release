@@ -1,0 +1,127 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""
+stability test setup tool.
+python2.7 or higher
+Fill device internal storage and external memory/SD card in an automated method. 
+All created files (plain text) are stored under the specified folder. Deafult folder: '/opt', '/opt/storage/sdcard'
+~~~~~~~~~~~~~~~~~~~~~
+usage:
+   stsetup --help --help
+
+:copyright: see LICENSE for more details.
+:license: see LICENSE for more details.
+
+"""
+
+__title__ = 'stsetup'
+__version__ = '1.0'
+__author__ = 'hongbinx.bao@intel.com'
+
+try:
+    import copy,sys,os,argparse
+    from os.path import join
+    from commands import getoutput as call
+except ImportError, e:
+    raise e
+
+__version__ = '0.1'
+BRIDGE = 'sdb'
+internal_storage_path = '/opt'
+external_storage_path = '/opt/storage/sdcard'
+TARGET_FOLDER_NAME = 'memholder'
+SOURCE_FILES_PATH = './tempfile'
+SOURCE_FILES_1M_NAME = 'text.txt'
+DEFAULT_PERCENT_VALUE = 0.95
+
+def get_filled_size(path,percent=0.95):
+    global BRIDGE
+    total_size = call('%s shell df %s | awk \'{print $2}\' | awk -F: \'NR==2 {print $NF}\'' % (BRIDGE,path))
+    used_size = call('%s shell df %s | awk \'{print $3}\' | awk -F: \'NR==2 {print $NF}\'' % (BRIDGE,path))
+    return float(total_size)*percent - float(used_size)
+
+if len(sys.argv) < 2:
+    print 'Useage:'
+    print 'stsetup -h'
+
+try:
+    parser = argparse.ArgumentParser(description='Process the paramters of setup tool',
+                prog='sesetup')
+    parser.add_argument('-i', '--internal', dest='internal', default=internal_storage_path,
+                help='Set the path of device internal storage which need to be filled.')
+    parser.add_argument('-e', '--external', dest='external', default=external_storage_path,
+                help='Set the path of device external storage which need to be filled.')
+    parser.add_argument('-p', '--percent', dest='percent', type=float,default=DEFAULT_PERCENT_VALUE,
+                help='Set the maximum percent value of storage need to be filled to ')
+    parser.add_argument('-f', '--force', dest='force', action='store_true',
+                help='Set the type of file need to be filled.')
+    parser.add_argument('-c', '--cleanup', dest='cleanup', action='store_true',
+                help='Set the type of file need to be filled.')
+    parser.add_argument('--fillup', dest='fill', action='store_true',
+                help='Set the type of file need to be filled.')
+    parser.add_argument('-s' ,dest='serial',
+                help='Set the device serial number.')
+
+except Exception, e:
+    raise
+
+options = parser.parse_args(sys.argv[1:])
+if options.serial:
+    BRIDGE = 'sdb -s %s' % options.serial
+
+if options.cleanup:
+    call('%s root on' % BRIDGE) 
+    print 'earsing storage %s' % join(options.internal,TARGET_FOLDER_NAME)
+    ret = call('%s shell rm -rf %s%s%s' % (BRIDGE, options.internal, '/', TARGET_FOLDER_NAME))
+    print 'earsing storage %s' % join(options.external,TARGET_FOLDER_NAME)
+    ret = call('%s shell rm -rf %s%s%s' % (BRIDGE, options.external, '/', TARGET_FOLDER_NAME))
+    print 'done'
+
+if options.fill:
+    call('%s root on' % BRIDGE)
+    call('%s shell mkdir %s%s%s' % (BRIDGE,options.internal, '/', TARGET_FOLDER_NAME))
+    call('%s shell mkdir %s%s%s' % (BRIDGE,options.external, '/', TARGET_FOLDER_NAME))
+    internal_bytes = get_filled_size(options.internal, options.percent)*1024
+    external_bytes = get_filled_size(options.external, options.percent)*1024
+    if internal_bytes > 0:
+        print 'filling internal storage:'
+        count = int(internal_bytes/104857600)
+        ssize = int(internal_bytes%104857600/1048576)
+        if count > 0:
+            target_root_path = join(options.internal,TARGET_FOLDER_NAME)
+            print '%sbytes --------------------------> %s ' % (internal_bytes,target_root_path)
+            for c in range(count):
+                target = join(target_root_path,str(c))
+                call('%s push %s %s' % (BRIDGE,SOURCE_FILES_PATH,target))
+        if ssize > 0:
+            for s in range(ssize):
+                pfile, sufix = os.path.splitext(SOURCE_FILES_1M_NAME)
+                target = join(join(options.internal,TARGET_FOLDER_NAME),pfile+str(s)+sufix)
+                call('%s push %s %s' % (BRIDGE,join(SOURCE_FILES_PATH,SOURCE_FILES_1M_NAME),target))
+        print 'done\n'
+    else:
+        print 'No more internal space to fill\n'
+
+    if external_bytes > 0:
+        print 'filling external storage:'
+        count = int(external_bytes/104857600)
+        ssize = int(external_bytes%104857600/1048576)
+        if count > 0:
+            target_root_path = join(options.external,TARGET_FOLDER_NAME)
+            print '%sbytes --------------------------> %s ' % (external_bytes,target_root_path)
+            for c in range(count):
+                target = join(target_root_path,str(c))
+                call('%s push %s %s' % (BRIDGE,SOURCE_FILES_PATH,target))
+        if ssize > 0:
+
+            for s in range(ssize):
+                pfile, sufix = os.path.splitext(SOURCE_FILES_1M_NAME)
+                target = join(join(options.external,TARGET_FOLDER_NAME),pfile+str(s)+sufix)
+                call('%s push %s %s' % (BRIDGE,join(SOURCE_FILES_PATH,SOURCE_FILES_1M_NAME),target))
+        print 'done\n'
+    else:
+        print 'No more external space to fill\n'
+
+    print call('%s shell df -h %s' % (BRIDGE, options.internal) )
+    print call('%s shell df -h %s' % (BRIDGE, options.external) )

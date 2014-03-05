@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="http://www.intel.com"
+xmlns="http://www.intel.com"
+elementFormDefault="qualified">
+<xs:element name="test_plan">
+	<xs:complexType>
+	    <xs:sequence>
+  	        <xs:element name="component" maxOccurs="unbounded">
+  	        	<xs:complexType>
+  	        		<xs:sequence>
+  	        		    <xs:element name="testcase" maxOccurs="unbounded">
+  	        			    <xs:complexType>
+  	                      <xs:attribute name="test_script_entry" type="xs:string" use="required"/>
+  	                      <xs:attribute name="purpose" type="xs:string" use="required"/>
+  	                      <xs:attribute name="loop" type="xs:positiveInteger" use="required"/>
+                          <xs:attribute name="timeout" type="xs:positiveInteger" use="required"/>
+  	        			    </xs:complexType>
+  	        		    </xs:element>
+  	        	  </xs:sequence>
+  	  	        <xs:attribute name="name" type="xs:string" use="required"/>
+  	        	</xs:complexType>
+  	        </xs:element>
+  	    </xs:sequence>
+  	</xs:complexType>
+</xs:element>
+
+</xs:schema>

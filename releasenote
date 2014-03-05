@@ -1,0 +1,32 @@
+===============
+date:2014/2/21
+update:
+1: fix the case order issue.
+===============
+date:2014/1/17
+update:
+1: add tag 'execution_type' and tag 'suite' to get rid of the hardcode issue.
+Note: 
+1: There should be one suite and one only in plan.xml.
+2: execution_type="auto|manual", in our framework, it should be "auto". 
+===============
+date:2014/1/5
+update:
+1: change the snapshot size which need to be upload
+2: add --scripts options. let user to specify the test scripts location
+3: add handler if user force testing to stop running
+===============
+date:2013/12/20
+update:
+1: remove the mandtory of '--platform' if 'product'&'revision'&'serial' provided by command line.
+2: add timeout attribute in ori plan file.
+===============
+date:2013/12/06
+update:
+1: read product and revison from device. if unable to get the produt and revision value will enable user to input from command line.
+2: remove some unused code.
+===============
+date:2013/12/04
+update:
+1: sability trunner upload log and snapshots to server done.
+2: add platform product and revision in command line.

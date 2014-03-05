@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<test_plan xmlns="http://www.intel.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.intel.com stability.xsd">
+  <suite name="test-suite">
+   <component name="telephony">
+     <testcase test_script_entry="ChkPhone_Launch.sh" purpose="Check phone launch" loop="2" execution_type="auto" timeout="120"/>
+     <testcase test_script_entry="ChkSettings_Launch.sh" purpose="Check setting launch" loop="2" execution_type="auto" timeout="120"/>
+   </component>
+   <component name="PIM">
+     <testcase test_script_entry="ChkClock_Launch.sh" purpose="Check alarmCLock launch" loop="3" execution_type="auto" timeout="90"/>
+   </component>
+   <component name="browser">
+     <testcase test_script_entry="ChkBrowser_Launch.sh" purpose="Check browser launch" loop="2" execution_type="auto" timeout="120"/>
+     <testcase test_script_entry="ChkBrowserSettings_Launch.sh" purpose="Check browser setting launch" execution_type="auto" loop="2" timeout="120"/>
+   </component>
+   <component name="Sync">
+     <testcase test_script_entry="ChkCalendar_Launch.sh" purpose="Check calendar launch" loop="3" execution_type="auto" timeout="90"/>
+   </component>
+ </suite>
+</test_plan>

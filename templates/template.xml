@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="./testcase.xsl"?>
+<test_definition>
+  <suite name="{{data.suitename}}">
+  {% for component, tcs in data.cases.items() %}
+    <set name="{{ component }}">
+        {% for tc in tcs %}
+        <testcase purpose="{{ tc.purpose }}" component="{{ tc.component }}" execution_type="{{ tc.execution_type }}" id="{{ tc.id }}" order="{{ tc.order }}">
+            <description>
+                <test_script_entry timeout="{{ tc.timeout }}">{{ tc.test_script_entry }}</test_script_entry>
+            </description>
+        </testcase>
+        {% endfor %}
+    </set>
+  {% endfor %}
+  </suite>
+</test_definition>
